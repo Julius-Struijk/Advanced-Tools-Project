@@ -6,14 +6,12 @@ using System.Diagnostics;
 public class DataLogger : MonoBehaviour
 {
     [SerializeField] float logEndTime = 10f;
-    [SerializeField] float logInterval = 0.1f;
-    float lastLogTime = 0;
     string[] dataLog;
     string logMessage;
 
     int FPS;
     [SerializeField]
-    private float fpsInterval = 0.1f;
+    private float logInterval = 0.1f;
     private int fpsSampleRate = 10;
 
     float lastAverageTime = 0;
@@ -21,17 +19,15 @@ public class DataLogger : MonoBehaviour
     int[] sampleFPS;
     int sampleCount = 0;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
+    FrameTiming[] m_FrameTimings = new FrameTiming[1];
 
-    }
-
-    // Update is called once per frame
     void Update()
     {
         // Only log data for a specific amount of time after program start.
-        if (Time.time < logEndTime) { GetAverageFPS(); }
+        if (Time.time < logEndTime)
+        {
+            GetAverageFPS();
+        }
     }
 
     private float GetFPS()
@@ -47,14 +43,14 @@ public class DataLogger : MonoBehaviour
             sampleFPS = new int[fpsSampleRate];
         }
 
-        if (Time.time - lastSampleTime >= fpsInterval / fpsSampleRate)
+        if (Time.time - lastSampleTime >= logInterval / fpsSampleRate)
         {
             sampleFPS[sampleCount] = (int)(1.0f / Time.deltaTime);
             lastSampleTime = Time.time;
             sampleCount++;
         }
 
-        if (Time.time - lastAverageTime >= fpsInterval)
+        if (Time.time - lastAverageTime >= logInterval)
         {
             float averageFPS = (int)sampleFPS.Average();
             lastAverageTime = Time.time;
@@ -63,31 +59,25 @@ public class DataLogger : MonoBehaviour
         }
     }
 
-    public object GetCPUCounter()
+    double GetCpuUsage(FrameTiming frameTime)
     {
-
-        PerformanceCounter cpuCounter = new PerformanceCounter();
-        cpuCounter.CategoryName = "Processor";
-        cpuCounter.CounterName = "% Processor Time";
-        cpuCounter.InstanceName = "_Total";
-
-        // will always start at 0
-        dynamic firstValue = cpuCounter.NextValue();
-        //System.Threading.Thread.Sleep(1000);
-        // now matches task manager reading
-        dynamic secondValue = cpuCounter.NextValue();
-
-        return secondValue;
-
+        return frameTime.cpuMainThreadFrameTime / frameTime.cpuFrameTime * 100;
     }
+
 
     void LogData(float avgFPS)
     {
-        if (Time.time > lastLogTime + logInterval)
+        // Get CPU usage
+        double cpuUsage = -1;
+        FrameTimingManager.CaptureFrameTimings();
+        var ret = FrameTimingManager.GetLatestTimings((uint)m_FrameTimings.Length, m_FrameTimings);
+        if (ret > 0) { cpuUsage = GetCpuUsage(m_FrameTimings[0]); }
+
+        // If the cpu usage isn't an impossible value, we log the data.
+        if (cpuUsage >= 0)
         {
-            lastLogTime = Time.time;
-            UnityEngine.Debug.LogFormat("Time: {0} FPS: {1} Average FPS: {2} CPU: {3}", Time.time, GetFPS(), avgFPS, GetCPUCounter());
-            //logMessage = string.Format("Time: {0} FPS: {1} CPU: {2}", Time.time, GetFPS(),  );
+            UnityEngine.Debug.LogFormat("Time: {0} FPS: {1} Average FPS: {2} CPU: {3}", Time.time, GetFPS(), avgFPS, cpuUsage);
+            logMessage = string.Format("Time: {0} FPS: {1} CPU: {2}", Time.time, GetFPS(),  );
         }
     }
 
