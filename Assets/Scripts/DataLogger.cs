@@ -7,13 +7,14 @@ public class DataLogger : MonoBehaviour
 {
     [SerializeField] float logEndTime = 10f;
     List<double> cpuDataLog;
-    List<float> fpsDataLog;
+    //List<float> fpsDataLog;
     string logMessage;
+    [SerializeField] float logInterval = 0.1f;
     bool saved = false;
 
     int FPS;
     [SerializeField]
-    private float logInterval = 0.1f;
+    private float fpsInterval = 0.1f;
     private int fpsSampleRate = 10;
 
     float lastAverageTime = 0;
@@ -28,14 +29,16 @@ public class DataLogger : MonoBehaviour
     [System.Serializable]
     public struct SaveData
     {
-        public List<double> cpuData;
-        public List<float> fpsData;
+        //public List<double> cpuData;
+        //public List<float> fpsData;
+        public double avgCpuUsageData;
+        public float avgFpsData;
     }
 
     private void Start()
     {
         cpuDataLog = new List<double>();
-        fpsDataLog = new List<float>();
+        //fpsDataLog = new List<float>();
     }
 
     void Update()
@@ -44,9 +47,11 @@ public class DataLogger : MonoBehaviour
         if (Time.time < logEndTime)
         {
             GetAverageFPS();
+            LogCpuUsage();
         }
         else if(!saved)
         {
+            Debug.Log("All data has been logged.");
             // Export data once all of it has been logged.
             saved = true;
             Save();
@@ -66,19 +71,20 @@ public class DataLogger : MonoBehaviour
             sampleFPS = new int[fpsSampleRate];
         }
 
-        if (Time.time - lastSampleTime >= logInterval / fpsSampleRate)
+        if (Time.time - lastSampleTime >= fpsInterval / fpsSampleRate)
         {
             sampleFPS[sampleCount] = (int)(1.0f / Time.deltaTime);
             lastSampleTime = Time.time;
             sampleCount++;
         }
 
-        if (Time.time - lastAverageTime >= logInterval)
+        if (Time.time - lastAverageTime >= fpsInterval)
         {
             float averageFPS = (int)sampleFPS.Average();
             lastAverageTime = Time.time;
             sampleCount = 0;
-            LogData(averageFPS);
+            _saveData.avgFpsData = averageFPS;
+            //LogData(averageFPS);
         }
     }
 
@@ -87,22 +93,33 @@ public class DataLogger : MonoBehaviour
         return frameTime.cpuMainThreadFrameTime / frameTime.cpuFrameTime * 100;
     }
 
-
-    void LogData(float avgFPS)
+    void LogCpuUsage()
     {
-        // Get CPU usage
-        double cpuUsage = -1;
         FrameTimingManager.CaptureFrameTimings();
         var ret = FrameTimingManager.GetLatestTimings((uint)m_FrameTimings.Length, m_FrameTimings);
-        if (ret > 0) { cpuUsage = GetCpuUsage(m_FrameTimings[0]); }
-
-        // If the cpu usage isn't an impossible value, we log the data.
-        if (cpuUsage >= 0)
-        {
+        if (ret > 0) 
+        { 
+            double cpuUsage = GetCpuUsage(m_FrameTimings[0]);
             cpuDataLog.Add(cpuUsage);
-            fpsDataLog.Add(avgFPS);
         }
     }
+
+
+    //void LogData(float avgFPS)
+    //{
+    //    // Get CPU usage
+    //    //double cpuUsage = -1;
+    //    //FrameTimingManager.CaptureFrameTimings();
+    //    //var ret = FrameTimingManager.GetLatestTimings((uint)m_FrameTimings.Length, m_FrameTimings);
+    //    //if (ret > 0) { cpuUsage = GetCpuUsage(m_FrameTimings[0]); }
+
+    //    // If the cpu usage isn't an impossible value, we log the data.
+    //    //if (cpuUsage >= 0)
+    //    {
+    //        //cpuDataLog.Add(cpuUsage);
+    //        //fpsDataLog.Add(avgFPS);
+    //    }
+    //}
 
     string SaveFileLocation()
     {
@@ -112,8 +129,9 @@ public class DataLogger : MonoBehaviour
 
     void Save()
     {
-        _saveData.cpuData = cpuDataLog;
-        _saveData.fpsData = fpsDataLog;
+        Debug.Log("Saving progress");
+        _saveData.avgCpuUsageData = cpuDataLog.Average();
+        //_saveData.fpsData = fpsDataLog;
         File.WriteAllText(SaveFileLocation(), JsonUtility.ToJson(_saveData));
     }
 }
