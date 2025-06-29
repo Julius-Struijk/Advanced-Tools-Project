@@ -7,7 +7,6 @@ public class DataLogger : MonoBehaviour
 {
     [SerializeField] float logEndTime = 10f;
     List<double> cpuDataLog;
-    //List<float> fpsDataLog;
     string logMessage;
     [SerializeField] float logInterval = 0.1f;
     bool saved = false;
@@ -29,8 +28,6 @@ public class DataLogger : MonoBehaviour
     [System.Serializable]
     public struct SaveData
     {
-        //public List<double> cpuData;
-        //public List<float> fpsData;
         public double avgCpuUsageData;
         public float avgFpsData;
     }
@@ -38,7 +35,6 @@ public class DataLogger : MonoBehaviour
     private void Start()
     {
         cpuDataLog = new List<double>();
-        //fpsDataLog = new List<float>();
     }
 
     void Update()
@@ -51,7 +47,6 @@ public class DataLogger : MonoBehaviour
         }
         else if(!saved)
         {
-            Debug.Log("All data has been logged.");
             // Export data once all of it has been logged.
             saved = true;
             Save();
@@ -84,7 +79,6 @@ public class DataLogger : MonoBehaviour
             lastAverageTime = Time.time;
             sampleCount = 0;
             _saveData.avgFpsData = averageFPS;
-            //LogData(averageFPS);
         }
     }
 
@@ -104,23 +98,6 @@ public class DataLogger : MonoBehaviour
         }
     }
 
-
-    //void LogData(float avgFPS)
-    //{
-    //    // Get CPU usage
-    //    //double cpuUsage = -1;
-    //    //FrameTimingManager.CaptureFrameTimings();
-    //    //var ret = FrameTimingManager.GetLatestTimings((uint)m_FrameTimings.Length, m_FrameTimings);
-    //    //if (ret > 0) { cpuUsage = GetCpuUsage(m_FrameTimings[0]); }
-
-    //    // If the cpu usage isn't an impossible value, we log the data.
-    //    //if (cpuUsage >= 0)
-    //    {
-    //        //cpuDataLog.Add(cpuUsage);
-    //        //fpsDataLog.Add(avgFPS);
-    //    }
-    //}
-
     string SaveFileLocation()
     {
         string saveFile = Application.persistentDataPath + "/save" + ".data";
@@ -129,9 +106,7 @@ public class DataLogger : MonoBehaviour
 
     void Save()
     {
-        Debug.Log("Saving progress");
         _saveData.avgCpuUsageData = cpuDataLog.Average();
-        //_saveData.fpsData = fpsDataLog;
         File.WriteAllText(SaveFileLocation(), JsonUtility.ToJson(_saveData));
     }
 }

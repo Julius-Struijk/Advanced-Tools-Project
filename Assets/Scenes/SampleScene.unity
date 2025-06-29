@@ -1132,7 +1132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e89113d6798b2b47828283518c0fad9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectAmount: 15
+  objectAmount: 60
   spawnObject: {fileID: 743900693}
   spawnPlatform: {fileID: 616215439}
   spawnBuffer: 0.5
