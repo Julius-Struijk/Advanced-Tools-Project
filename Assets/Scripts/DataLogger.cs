@@ -1,13 +1,15 @@
 using UnityEngine;
 using System.IO;
 using System.Linq;
-using System.Diagnostics;
+using System.Collections.Generic;
 
 public class DataLogger : MonoBehaviour
 {
     [SerializeField] float logEndTime = 10f;
-    string[] dataLog;
+    List<double> cpuDataLog;
+    List<float> fpsDataLog;
     string logMessage;
+    bool saved = false;
 
     int FPS;
     [SerializeField]
@@ -21,12 +23,32 @@ public class DataLogger : MonoBehaviour
 
     FrameTiming[] m_FrameTimings = new FrameTiming[1];
 
+    private static SaveData _saveData = new SaveData();
+
+    [System.Serializable]
+    public struct SaveData
+    {
+        public List<double> cpuData;
+        public List<float> fpsData;
+    }
+
+    private void Start()
+    {
+        cpuDataLog = new List<double>();
+        fpsDataLog = new List<float>();
+    }
+
     void Update()
     {
         // Only log data for a specific amount of time after program start.
         if (Time.time < logEndTime)
         {
             GetAverageFPS();
+        }
+        else if(!saved)
+        {
+            saved = true;
+            Save();
         }
     }
 
@@ -76,21 +98,34 @@ public class DataLogger : MonoBehaviour
         // If the cpu usage isn't an impossible value, we log the data.
         if (cpuUsage >= 0)
         {
-            UnityEngine.Debug.LogFormat("Time: {0} FPS: {1} Average FPS: {2} CPU: {3}", Time.time, GetFPS(), avgFPS, cpuUsage);
-            logMessage = string.Format("Time: {0} FPS: {1} CPU: {2}", Time.time, GetFPS(),  );
+            Debug.LogFormat("Time: {0} FPS: {1} Average FPS: {2} CPU: {3}", Time.time, GetFPS(), avgFPS, cpuUsage);
+            cpuDataLog.Add(cpuUsage);
+            fpsDataLog.Add(avgFPS);
         }
     }
 
-    public static string SaveFileName()
+    //void SaveCPU(ref List<double> pCpuData)
+    //{
+    //    pCpuData = cpuDataLog;
+    //}
+
+    //void SaveFPS(ref List<float> pFpsData)
+    //{
+    //    pFpsData = fpsDataLog;
+    //}
+
+    string SaveFileName()
     {
-        UnityEngine.Debug.Log("Getting save file name.");
         string saveFile = Application.persistentDataPath + "/save" + ".data";
+        Debug.Log("Save file location: " + saveFile);
         return saveFile;
     }
 
-    public static void Save()
+    void Save()
     {
-        UnityEngine.Debug.Log("Saving progress.");
-        //File.WriteAllText(SaveFileName(), JsonUtility.ToJson(_saveData));
+        _saveData.cpuData = cpuDataLog;
+        _saveData.fpsData = fpsDataLog;
+        Debug.LogFormat("Saving {0} cpu and {1} items.", _saveData.cpuData.Count, _saveData.fpsData.Count);
+        File.WriteAllText(SaveFileName(), JsonUtility.ToJson(_saveData));
     }
 }
