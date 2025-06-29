@@ -47,6 +47,7 @@ public class DataLogger : MonoBehaviour
         }
         else if(!saved)
         {
+            // Export data once all of it has been logged.
             saved = true;
             Save();
         }
@@ -98,26 +99,14 @@ public class DataLogger : MonoBehaviour
         // If the cpu usage isn't an impossible value, we log the data.
         if (cpuUsage >= 0)
         {
-            Debug.LogFormat("Time: {0} FPS: {1} Average FPS: {2} CPU: {3}", Time.time, GetFPS(), avgFPS, cpuUsage);
             cpuDataLog.Add(cpuUsage);
             fpsDataLog.Add(avgFPS);
         }
     }
 
-    //void SaveCPU(ref List<double> pCpuData)
-    //{
-    //    pCpuData = cpuDataLog;
-    //}
-
-    //void SaveFPS(ref List<float> pFpsData)
-    //{
-    //    pFpsData = fpsDataLog;
-    //}
-
-    string SaveFileName()
+    string SaveFileLocation()
     {
         string saveFile = Application.persistentDataPath + "/save" + ".data";
-        Debug.Log("Save file location: " + saveFile);
         return saveFile;
     }
 
@@ -125,7 +114,6 @@ public class DataLogger : MonoBehaviour
     {
         _saveData.cpuData = cpuDataLog;
         _saveData.fpsData = fpsDataLog;
-        Debug.LogFormat("Saving {0} cpu and {1} items.", _saveData.cpuData.Count, _saveData.fpsData.Count);
-        File.WriteAllText(SaveFileName(), JsonUtility.ToJson(_saveData));
+        File.WriteAllText(SaveFileLocation(), JsonUtility.ToJson(_saveData));
     }
 }
