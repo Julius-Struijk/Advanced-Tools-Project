@@ -1133,7 +1133,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectAmount: 15
-  spawnObject: {fileID: 2006876672}
+  spawnObject: {fileID: 743900693}
   spawnPlatform: {fileID: 616215439}
   spawnBuffer: 0.5
 --- !u!1 &1255656841
@@ -1204,6 +1204,52 @@ Transform:
   - {fileID: 809642271}
   - {fileID: 1901651754}
   - {fileID: 2006876673}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1445679089
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1445679091}
+  - component: {fileID: 1445679090}
+  m_Layer: 0
+  m_Name: DataLogger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1445679090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1445679089}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f37b5de30c83cf34783c39364182aa42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  logEndTime: 5
+  logInterval: 0.1
+--- !u!4 &1445679091
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1445679089}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.2765392, y: 0.6625872, z: 0.011582556}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1901651752
@@ -1669,3 +1715,4 @@ SceneRoots:
   - {fileID: 1255656842}
   - {fileID: 1218421809}
   - {fileID: 1319562686}
+  - {fileID: 1445679091}
