@@ -78,6 +78,7 @@ public class DataLogger : MonoBehaviour
             float averageFPS = (int)sampleFPS.Average();
             lastAverageTime = Time.time;
             sampleCount = 0;
+            Debug.Log("Logging FPS data.");
             _saveData.avgFpsData = averageFPS;
         }
     }
@@ -106,6 +107,7 @@ public class DataLogger : MonoBehaviour
 
     void Save()
     {
+        Debug.Log("Data saved.");
         _saveData.avgCpuUsageData = cpuDataLog.Average();
         File.WriteAllText(SaveFileLocation(), JsonUtility.ToJson(_saveData));
     }
